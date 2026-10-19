@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · StudentSync{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="stat-grid">
+  <div class="glass-card stat-card grad-1">
+    <span class="stat-icon">🎓</span>
+    <div class="stat-label">Total Students</div>
+    <div class="stat-value" data-count="{{ total_students }}">0</div>
+  </div>
+  <div class="glass-card stat-card grad-2">
+    <span class="stat-icon">📚</span>
+    <div class="stat-label">Total Courses</div>
+    <div class="stat-value" data-count="{{ total_courses }}">0</div>
+  </div>
+  <div class="glass-card stat-card grad-4">
+    <span class="stat-icon">✅</span>
+    <div class="stat-label">Active Students</div>
+    <div class="stat-value" data-count="{{ active_students }}">0</div>
+  </div>
+  <div class="glass-card stat-card grad-3">
+    <span class="stat-icon">📊</span>
+    <div class="stat-label">Today's Attendance</div>
+    <div class="stat-value" data-count="{{ attendance_rate_today }}" data-suffix="%">0%</div>
+  </div>
+</div>
+
+<div class="dash-grid">
+  <div class="glass-card panel">
+    <h3 class="panel-title">
+      Students per Course
+    </h3>
+    <div class="chart-wrap">
+      <canvas id="courseChart"></canvas>
+    </div>
+  </div>
+
+  <div class="glass-card panel">
+    <h3 class="panel-title">
+      Recently Admitted
+      <a href="{% url 'student_list' %}">View all →</a>
+    </h3>
+    {% if recent_students %}
+      {% for s in recent_students %}
+        <div class="mini-student-row">
+          <div class="avatar">{{ s.first_name|first }}{{ s.last_name|first }}</div>
+          <div class="mini-info">
+            <div class="mini-name">{{ s.full_name }}</div>
+            <div class="mini-sub">{{ s.roll_no }} · {{ s.course.name|default:"No course" }}</div>
+          </div>
+          <span class="badge badge-{{ s.status }}">{{ s.get_status_display }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <div class="emoji">🧑‍🎓</div>
+        <p>No students yet. <a href="{% url 'student_add' %}" style="color:var(--purple-3);">Add your first student</a>.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="toolbar" style="margin-top:24px;">
+  <a href="{% url 'student_add' %}" class="btn btn-primary">+ Add Student</a>
+  <a href="{% url 'course_add' %}" class="btn btn-outline">+ Add Course</a>
+  <a href="{% url 'attendance_mark' %}" class="btn btn-outline">🗓 Mark Attendance</a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+  const ctx = document.getElementById('courseChart');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ course_labels|safe }},
+      datasets: [{
+        data: {{ course_counts|safe }},
+        backgroundColor: ['#a238ea', '#ff5fa2', '#ffcf5c', '#33d69f', '#6a2ee0', '#d16bff'],
+        borderColor: 'rgba(20,10,36,0.9)',
+        borderWidth: 3,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#f4f0ff', font: { family: 'Inter' }, padding: 16 }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

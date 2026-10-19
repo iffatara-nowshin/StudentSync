@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ student.full_name }} · StudentSync{% endblock %}
+{% block page_title %}Student Profile{% endblock %}
+
+{% block content %}
+
+<div class="glass-card profile-header">
+  <div class="profile-photo">
+    {% if student.photo %}
+      <img src="{{ student.photo.url }}" alt="{{ student.full_name }}">
+    {% else %}
+      {{ student.first_name|first }}{{ student.last_name|first }}
+    {% endif %}
+  </div>
+  <div class="profile-meta">
+    <h2>{{ student.full_name }}</h2>
+    <div class="sub">{{ student.roll_no }} · {{ student.course.name|default:"No course assigned" }} · <span class="badge badge-{{ student.status }}">{{ student.get_status_display }}</span></div>
+  </div>
+  <div style="margin-left:auto; display:flex; gap:10px;">
+    <a href="{% url 'student_edit' student.pk %}" class="btn btn-outline btn-sm">Edit</a>
+    <a href="{% url 'student_delete' student.pk %}" class="btn btn-danger btn-sm">Delete</a>
+  </div>
+</div>
+
+<div class="detail-grid glass-card" style="padding:24px; margin-bottom:22px;">
+  <div class="detail-item"><div class="k">Email</div><div class="v">{{ student.email|default:"—" }}</div></div>
+  <div class="detail-item"><div class="k">Phone</div><div class="v">{{ student.phone|default:"—" }}</div></div>
+  <div class="detail-item"><div class="k">Date of Birth</div><div class="v">{{ student.dob|default:"—" }}</div></div>
+  <div class="detail-item"><div class="k">Gender</div><div class="v">{{ student.get_gender_display }}</div></div>
+  <div class="detail-item"><div class="k">Admission Date</div><div class="v">{{ student.admission_date }}</div></div>
+  <div class="detail-item"><div class="k">Attendance Rate</div><div class="v">{{ student.attendance_percentage }}%</div></div>
+</div>
+
+<div class="dash-grid">
+  <div class="glass-card panel">
+    <h3 class="panel-title">Academic Results</h3>
+    {% if results %}
+      <div class="table-wrap" style="border:none;">
+        <table>
+          <thead><tr><th>Exam</th><th>Subject</th><th>Score</th><th>%</th></tr></thead>
+          <tbody>
+            {% for r in results %}
+            <tr>
+              <td>{{ r.exam_name }}</td>
+              <td>{{ r.subject }}</td>
+              <td>{{ r.marks_obtained }} / {{ r.total_marks }}</td>
+              <td>
+                <div class="progress-track" style="margin-bottom:4px;">
+                  <div class="progress-fill" style="width:{{ r.percentage }}%;"></div>
+                </div>
+                {{ r.percentage }}%
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p style="color:var(--text-muted);">No results recorded yet.</p>
+    {% endif %}
+
+    <form method="post" action="{% url 'add_result' student.pk %}" style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+      {% csrf_token %}
+      {{ result_form.exam_name }}
+      {{ result_form.subject }}
+      {{ result_form.marks_obtained }}
+      {{ result_form.total_marks }}
+      <button type="submit" class="btn btn-primary btn-sm">+ Add Result</button>
+    </form>
+  </div>
+
+  <div class="glass-card panel">
+    <h3 class="panel-title">
+      Recent Attendance
+      <a href="{% url 'attendance_report' %}?student={{ student.pk }}">Full history →</a>
+    </h3>
+    {% if attendances %}
+      {% for a in attendances %}
+        <div class="mini-student-row">
+          <div class="mini-info">
+            <div class="mini-name">{{ a.date }}</div>
+          </div>
+          <span class="badge badge-{% if a.status == 'present' %}active{% else %}inactive{% endif %}">{{ a.get_status_display }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--text-muted);">No attendance records yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

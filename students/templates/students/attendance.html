@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load student_extras %}
+{% block title %}Attendance · StudentSync{% endblock %}
+{% block page_title %}Mark Attendance{% endblock %}
+
+{% block content %}
+
+<form method="get" class="toolbar">
+  <div class="filters">
+    <select name="course" class="form-control" onchange="this.form.submit()">
+      <option value="">All Active Students</option>
+      {% for c in courses %}
+        <option value="{{ c.id }}" {% if selected_course == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <input type="date" name="date" class="form-control" value="{{ selected_date }}" onchange="this.form.submit()">
+  </div>
+  <a href="{% url 'attendance_report' %}" class="btn btn-outline">View Reports</a>
+</form>
+
+<div class="glass-card panel">
+  <h3 class="panel-title">{{ selected_date }}</h3>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="course" value="{{ selected_course|default_if_none:'' }}">
+    <input type="hidden" name="date" value="{{ selected_date|default_if_none:'' }}">
+
+    {% for s in students %}
+    <div class="attendance-row">
+      <div class="mini-info" style="display:flex; align-items:center; gap:12px;">
+        <div class="avatar">{{ s.first_name|first }}{{ s.last_name|first }}</div>
+        <div>
+          <div class="mini-name">{{ s.full_name }}</div>
+          <div class="mini-sub">{{ s.roll_no }}</div>
+        </div>
+      </div>
+      {% with current_status=existing|get_item:s.id|default:"present" %}
+      <div class="att-toggle">
+        <label class="present-label {% if current_status == 'present' %}is-checked{% endif %}">
+          <input type="radio" name="status_{{ s.id }}" value="present" {% if current_status == 'present' %}checked{% endif %}>
+          <span>Present</span>
+        </label>
+        <label class="absent-label {% if current_status == 'absent' %}is-checked{% endif %}">
+          <input type="radio" name="status_{{ s.id }}" value="absent" {% if current_status == 'absent' %}checked{% endif %}>
+          <span>Absent</span>
+        </label>
+      </div>
+      {% endwith %}
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <div class="emoji">🧑‍🎓</div>
+      <p>No active students found for this filter.</p>
+    </div>
+    {% endfor %}
+
+    {% if students %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Attendance</button>
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+{% endblock %}

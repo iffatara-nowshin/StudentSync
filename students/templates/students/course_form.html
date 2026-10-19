@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · StudentSync{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="glass-card form-card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      <div>
+        <label class="field-label">Course Name</label>
+        {{ form.name }}
+      </div>
+      <div>
+        <label class="field-label">Course Code</label>
+        {{ form.code }}
+      </div>
+      <div>
+        <label class="field-label">Duration (Years)</label>
+        {{ form.duration_years }}
+      </div>
+      <div class="full">
+        <label class="field-label">Description</label>
+        {{ form.description }}
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Course</button>
+      <a href="{% url 'course_list' %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

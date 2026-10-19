@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Delete Course · StudentSync{% endblock %}
+{% block page_title %}Delete Course{% endblock %}
+
+{% block content %}
+<div class="glass-card form-card">
+  <h3 style="margin-top:0;">Are you sure?</h3>
+  <p style="color:var(--text-muted);">
+    This will permanently delete <strong>{{ course.name }}</strong> ({{ course.code }}). Students enrolled in this course will have their course field cleared.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-danger">Yes, Delete</button>
+      <a href="{% url 'course_list' %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

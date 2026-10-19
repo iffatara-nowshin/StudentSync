@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Attendance Report · StudentSync{% endblock %}
+{% block page_title %}Attendance Report{% endblock %}
+
+{% block content %}
+
+<form method="get" class="toolbar">
+  <div class="filters">
+    <select name="student" class="form-control" onchange="this.form.submit()">
+      <option value="">All Students</option>
+      {% for s in students %}
+        <option value="{{ s.id }}" {% if selected_student == s.id|stringformat:"s" %}selected{% endif %}>{{ s.full_name }} ({{ s.roll_no }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <a href="{% url 'attendance_mark' %}" class="btn btn-outline">Mark Attendance</a>
+</form>
+
+<div class="glass-card table-wrap">
+  {% if records %}
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Student</th><th>Roll No</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td>{{ r.date }}</td>
+        <td>{{ r.student.full_name }}</td>
+        <td>{{ r.student.roll_no }}</td>
+        <td><span class="badge badge-{% if r.status == 'present' %}active{% else %}inactive{% endif %}">{{ r.get_status_display }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="emoji">🗓</div>
+    <p>No attendance records found.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
