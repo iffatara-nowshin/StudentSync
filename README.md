@@ -115,14 +115,4 @@ studentSync/
         └── js/script.js         (sidebar toggle, animations)
 ```
 
-## Notes & Next Steps
-
-- `DEBUG = True` and `SECRET_KEY` in `studentSync/settings.py` are set for local development only —
-  change both before deploying anywhere public.
-- Uploaded student photos are stored in `/media/student_photos/`.
-- To switch to PostgreSQL/MySQL later, just update the `DATABASES` setting in `settings.py` and
-  re-run `python manage.py migrate`.
-- Want more features (bulk CSV import, email notifications, fee management, timetable)? Just ask —
-  the codebase is intentionally kept simple and easy to extend.
-
-Enjoy StudentSync! ✨
+## LIVE LINK : https://studentsync-gr41.onrender.com
